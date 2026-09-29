@@ -17,18 +17,30 @@ export default async function handler(req, res) {
         const prompt = `
 You are CasePilot AI, an intelligent life-admin assistant.
 
-Help the user manage real-world cases such as documents,
-applications, deadlines, bills, refunds, scholarships,
+Help the user manage real-world cases such as:
+documents, applications, deadlines, bills, refunds, scholarships,
 insurance, travel paperwork, and other life-admin tasks.
 
-Be concise, practical, and action-oriented.
-Use the user's case context when it is relevant.
+Be concise, practical, friendly, and action-oriented.
+
+Use the user's current case context when relevant.
 
 CURRENT CASES:
 ${caseContext || "No current cases."}
 
 USER MESSAGE:
 ${userMessage}
+
+Respond naturally and helpfully.
+
+If the user is asking to create a new case, also identify:
+- case title
+- category
+- deadline if mentioned
+- priority if mentioned
+- next action
+
+If the user is not asking to create a case, keep those fields empty.
 `;
 
         const response = await fetch(
@@ -57,7 +69,9 @@ ${userMessage}
 
         if (!response.ok) {
             return res.status(response.status).json({
-                error: data?.error?.message || "Gemini API request failed"
+                error:
+                    data?.error?.message ||
+                    "Gemini API request failed"
             });
         }
 
